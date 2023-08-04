@@ -10,6 +10,8 @@ Log.Logger = new LoggerConfiguration()
         .WriteTo.File("serilog/clientLogs.txt")
         .CreateLogger();
 
+Console.WriteLine("Type anything to connect");
+Console.ReadLine();
 var wsClient = new CustomWebSocketClient(url, Log.Logger);
 
 await wsClient.ConnectToWebSocket();
