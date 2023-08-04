@@ -42,7 +42,7 @@ public class ConnectionManager : IConnectionManager
         return _playerSocketMapping.ContainsKey(playerId);
     }
 
-    public async void RemoveSocket(Guid id)
+    public void RemoveSocket(Guid id)
     {
         foreach(var key in _playerSocketMapping.Keys)
         {
@@ -52,14 +52,7 @@ public class ConnectionManager : IConnectionManager
                 break;
             }
         };
-       
-        if (_sockets.TryRemove(id, out var socket))
-        {
-        }
-        else
-        {
-            throw new SocketNotFoundException($"Socket with {id} was not found");
-        }
+        _sockets.TryRemove(id, out var socket);
     }
 
     public AuthenticatedWebSocket GetSocketById(Guid id)
