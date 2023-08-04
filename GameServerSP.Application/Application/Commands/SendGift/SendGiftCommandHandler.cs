@@ -97,7 +97,6 @@ public class SendGiftCommandHandler : IRequestHandler<SendGiftCommand, Unit>
                 default:
                     isValid = false;
                     errorMessage = $"Send gift: Gift Type is not specified";
-                    //_logger.LogInformation("Unknown gift type.");
                     break;
             }
 
