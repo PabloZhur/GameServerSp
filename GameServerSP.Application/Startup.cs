@@ -10,7 +10,6 @@ using GameServerSP.Infrastructure.Data;
 using GameServerSP.Infrastructure.Extentions;
 using GameServerSP.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.Reflection;
 using WebSocketServer;

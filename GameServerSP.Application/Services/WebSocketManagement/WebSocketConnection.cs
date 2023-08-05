@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using GameClientServerSP.Shared;
 using GameClientServerSP.Shared.Requests;
+using GameServerSP.Application.Application.Commands.UnsupportedCommand;
 using GameServerSP.Application.Models.Requests;
 using MediatR;
 using System.Net.WebSockets;
+using System.Text;
 
 namespace GameServerSP.Application.Services.WebSocketManagement;
 
@@ -43,16 +45,19 @@ public class WebSocketConnection
             var webSocketMessage = await ReceiveMessagePayloadAsync(webSocketReceiveResult, buffer);
             if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
             {
-                var request = JsonSerializerHelper.Deserialize<BaseRequest>(webSocketMessage);
+                WebSocketRequest command;
 
-                if (request != null)
+                if (JsonSerializerHelper.TryDeserialize<BaseRequest>(webSocketMessage, out var request))
                 {
-                    var command = (WebSocketRequest)_mapper.Map(request, request.GetType(), typeof(WebSocketRequest));
+                    command = (WebSocketRequest)_mapper.Map(request, request.GetType(), typeof(WebSocketRequest));
                     command.WebSocketId = _webSocketId;
 
-                    await _mediator.Send(command);
                 }
-
+                else
+                {
+                    command = new UnsupportedCommand {WebSocketId = _webSocketId, Message = $"Server does not support the command: {Encoding.UTF8.GetString(webSocketMessage)}" };
+                }
+                await _mediator.Send(command);
             }
             else if (webSocketReceiveResult.MessageType == WebSocketMessageType.Close)
             {

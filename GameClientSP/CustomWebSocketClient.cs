@@ -38,6 +38,7 @@ public class CustomWebSocketClient
             Console.WriteLine("---Type 0 to login");
             Console.WriteLine("---Type 1 to updateResource");
             Console.WriteLine("---Type 2 to sendGift");
+            Console.WriteLine("---Type 3 to send not supported request");
             Console.WriteLine("---Type \"exit\" to close connection");
 
             var command = Console.ReadLine();
@@ -65,8 +66,8 @@ public class CustomWebSocketClient
                 }
 
                 var loginRequest = new LoginRequest { DeviceId = guid };
+                var loginMessage = ConstructMessage(loginRequest);
 
-                var loginMessage = new ArraySegment<byte>(JsonSerializerHelper.Serialize(loginRequest));
                 await _wsClient.SendAsync(loginMessage, WebSocketMessageType.Text, true, CancellationToken.None);
                 _logger.Information("Log message was sent");
             }
@@ -76,7 +77,8 @@ public class CustomWebSocketClient
                 int rolls = GetValue("Type Roll amount");
          
                 var updateResourceRequest = new UpdateResourceRequest { Coins = coins, Rolls = rolls };
-                var updateResourceMessage = new ArraySegment<byte>(JsonSerializerHelper.Serialize(updateResourceRequest));
+                var updateResourceMessage = ConstructMessage(updateResourceRequest);
+
                 await _wsClient.SendAsync(updateResourceMessage, WebSocketMessageType.Text, true, CancellationToken.None);
                 _logger.Information("Update resource message was sent");
             }
@@ -87,9 +89,18 @@ public class CustomWebSocketClient
                 var giftValue = GetValue("Type gift value");
 
                 var sendGift = new GiftRequest { FriendPlayerId = playerId, Type = giftType, Value = giftValue };
-                var sendGiftMessage = new ArraySegment<byte>(JsonSerializerHelper.Serialize(sendGift));
+                var sendGiftMessage = ConstructMessage(sendGift);
+
                 await _wsClient.SendAsync(sendGiftMessage, WebSocketMessageType.Text, true, CancellationToken.None);
                 _logger.Information("Send Gift message was sent");
+            }
+            else if(command == "3")
+            {
+                var notSupportedRequest = new NotSupportedRequest { NotSupportedField1 = "Field1", NotSupportedField2 = "Field2" };
+                var notSupportedMessage = ConstructMessage(notSupportedRequest);
+
+                await _wsClient.SendAsync(notSupportedMessage, WebSocketMessageType.Text, true, CancellationToken.None);
+                _logger.Information("Not Support message was sent");
             }
             else if (command == "exit")
             {
@@ -176,5 +187,11 @@ public class CustomWebSocketClient
             }
         }
 
+    }
+
+    private ArraySegment<byte> ConstructMessage<T>(T obj)
+    {
+        var message = new ArraySegment<byte>(JsonSerializerHelper.Serialize(obj));
+        return message;
     }
 }
